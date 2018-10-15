@@ -37,7 +37,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {loop="$product"}
+                                    {loop="$products"}
                                     <tr class="cart_item">
                                         <td class="product-remove">
                                             <a title="Remove this item" class="remove" href="/ecommerce/cart/{$value.idproduct}/remove">×</a> 
@@ -64,7 +64,7 @@
                                         </td>
 
                                         <td class="product-subtotal">
-                                            <span class="amount">R${function="formatPrice($value.vltotal)"</span> 
+                                            <span class="amount">R${function="formatPrice($value.vltotal)"}</span> 
                                         </td>
                                     </tr>
                                     {/loop}

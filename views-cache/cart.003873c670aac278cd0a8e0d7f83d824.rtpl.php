@@ -37,7 +37,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php $counter1=-1;  if( isset($product) && ( is_array($product) || $product instanceof Traversable ) && sizeof($product) ) foreach( $product as $key1 => $value1 ){ $counter1++; ?>
+                                    <?php $counter1=-1;  if( isset($products) && ( is_array($products) || $products instanceof Traversable ) && sizeof($products) ) foreach( $products as $key1 => $value1 ){ $counter1++; ?>
 
                                     <tr class="cart_item">
                                         <td class="product-remove">
@@ -65,7 +65,7 @@
                                         </td>
 
                                         <td class="product-subtotal">
-                                            <span class="amount">R${function="formatPrice($value.vltotal)"</span> 
+                                            <span class="amount">R$<?php echo formatPrice($value1["vltotal"]); ?></span> 
                                         </td>
                                     </tr>
                                     <?php } ?>
