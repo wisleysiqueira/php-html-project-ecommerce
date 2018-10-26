@@ -3,8 +3,8 @@ namespace Hcode;
 use Rain\Tpl;
 
 class Mailer{
-	const USERNAME = "email";
-	const PASSWORD = "senha";
+	const USERNAME = "seu_email_aqui@gmail.com";
+	const PASSWORD = "sua_senha_aqui";
 	const NAME_FROM = "Hcode Store";
 	private $mail;
 	public function __construct($toAddress, $toName, $subject, $tplName, $data = array())
