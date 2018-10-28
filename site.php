@@ -13,25 +13,27 @@ $app->get('/', function() {
 		'products'=>Product::checkList($products)
 	]);
 });
+
 $app->get("/categories/:idcategory", function($idcategory){
 	$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
 	$category = new Category();
 	$category->get((int)$idcategory);
-	$pagination = $category->getProductsPage($page);
+	$pagination = $category->getProductPage($page);
 	$pages = [];
 	for ($i=1; $i <= $pagination['pages']; $i++) { 
 		array_push($pages, [
-			'link'=>'/categories/'.$category->getidcategory().'?page='.$i,
+			'link'=>'/ecommerce/categories/'.$category->getidcategory().'?page='.$i,
 			'page'=>$i
 		]);
 	}
 	$page = new Page();
-	$page->setTpl("category", [
+	$page->setTpl("Category", [
 		'category'=>$category->getValues(),
 		'products'=>$pagination["data"],
 		'pages'=>$pages
 	]);
 });
+
 $app->get("/products/:desurl", function($desurl){
 	$product = new Product();
 	$product->getFromURL($desurl);
@@ -88,10 +90,10 @@ $app->get("/checkout", function(){
 	User::verifyLogin(false);
 	$address = new Address();
 	$cart = Cart::getFromSession();
-	if (!isset($_GET['zipcode'])) {
+	if(!isset($_GET['zipcode'])){
 		$_GET['zipcode'] = $cart->getdeszipcode();
 	}
-	if (isset($_GET['zipcode'])) {
+	if(isset($_GET['zipcode'])){
 		$address->loadFromCEP($_GET['zipcode']);
 		$cart->setdeszipcode($_GET['zipcode']);
 		$cart->save();
@@ -105,12 +107,13 @@ $app->get("/checkout", function(){
 	if (!$address->getdesstate()) $address->setdesstate('');
 	if (!$address->getdescountry()) $address->setdescountry('');
 	if (!$address->getdeszipcode()) $address->setdeszipcode('');
+	
 	$page = new Page();
 	$page->setTpl("checkout", [
 		'cart'=>$cart->getValues(),
-		'address'=>$address->getValues()
-		//'products'=>$cart->getProducts(),
-		//'error'=>Address::getMsgError()
+		'address'=>$address->getValues(),
+		'products'=>$cart->getProducts(),
+		'error'=>Address::getMsgError()
 	]);
 });
 $app->post("/checkout", function(){
@@ -153,59 +156,10 @@ $app->post("/checkout", function(){
 	$address->save();
 	$cart = Cart::getFromSession();
 	$cart->getCalculateTotal();
-	$order = new Order();
-	$order->setData([
-		'idcart'=>$cart->getidcart(),
-		'idaddress'=>$address->getidaddress(),
-		'iduser'=>$user->getiduser(),
-		'idstatus'=>OrderStatus::EM_ABERTO,
-		'vltotal'=>$cart->getvltotal()
-	]);
-	$order->save();
-	switch ((int)$_POST['payment-method']) {
-		case 1:
-		header("Location: /ecommerce/order/".$order->getidorder()."/pagseguro");
-		break;
-		case 2:
-		header("Location: /ecommerce/order/".$order->getidorder()."/paypal");
-		break;
-	}
+	header("Location: /ecommerce/order");
 	exit;
 });
-$app->get("/order/:idorder/pagseguro", function($idorder){
-	User::verifyLogin(false);
-	$order = new Order();
-	$order->get((int)$idorder);
-	$cart = $order->getCart();
-	$page = new Page([
-		'header'=>false,
-		'footer'=>false
-	]);
-	$page->setTpl("payment-pagseguro", [
-		'order'=>$order->getValues(),
-		'cart'=>$cart->getValues(),
-		'products'=>$cart->getProducts(),
-		'phone'=>[
-			'areaCode'=>substr($order->getnrphone(), 0, 2),
-			'number'=>substr($order->getnrphone(), 2, strlen($order->getnrphone()))
-		]
-	]);
-});
-$app->get("/order/:idorder/paypal", function($idorder){
-	User::verifyLogin(false);
-	$order = new Order();
-	$order->get((int)$idorder);
-	$cart = $order->getCart();
-	$page = new Page([
-		'header'=>false,
-		'footer'=>false
-	]);
-	$page->setTpl("payment-paypal", [
-		'order'=>$order->getValues(),
-		'cart'=>$cart->getValues(),
-		'products'=>$cart->getProducts()
-	]);
-});
+
 $app->get("/login", function(){
 	$page = new Page();
 	$page->setTpl("login", [
@@ -329,7 +283,8 @@ $app->post("/profile", function(){
 	$_POST['despassword'] = $user->getdespassword();
 	$_POST['deslogin'] = $_POST['desemail'];
 	$user->setData($_POST);
-	$user->save();
+	$user->updateUser();
+	$_SESSION[User::SESSION] = $user->getValues();
 	User::setSuccess("Dados alterados com sucesso!");
 	header('Location: /ecommerce/profile');
 	exit;

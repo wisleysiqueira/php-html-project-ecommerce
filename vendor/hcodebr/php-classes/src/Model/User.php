@@ -3,6 +3,7 @@ namespace Hcode\Model;
 use \Hcode\DB\Sql;
 use \Hcode\Model;
 use \Hcode\Mailer;
+
 class User extends Model {
 	const SESSION = "User";
 	const SECRET = "HcodePhp7_Secret";
@@ -117,6 +118,24 @@ class User extends Model {
 		));
 		$this->setData($results[0]);		
 	}
+	public function updateUser() 
+	{
+        $sql     = new Sql();
+        $results = $sql->select(
+            "CALL sp_usersupdate_save(:iduser, :desperson, :deslogin,
+                :despassword, :desemail, :nrphone, :inadmin)",
+            array(
+                ":iduser"      => $this->getiduser(),
+                ":desperson"   => utf8_decode($this->getdesperson()),
+                ":deslogin"    => $this->getdeslogin(),
+                ":despassword" => $_POST['despassword'],
+                ":desemail"    => $this->getdesemail(),
+                ":nrphone"     => $this->getnrphone(),
+                ":inadmin"     => $this->getinadmin()
+            ));
+ 
+        $this->setData($results[0]);
+    }
 	public function delete()
 	{
 		$sql = new Sql();
@@ -199,7 +218,7 @@ class User extends Model {
 	         return $results[0];
 	     }
 	 }
-	public static function setFogotUsed($idrecovery)
+	public static function setForgotUsed($idrecovery)
 	{
 		$sql = new Sql();
 		$sql->query("UPDATE tb_userspasswordsrecoveries SET dtrecovery = NOW() WHERE idrecovery = :idrecovery", array(
