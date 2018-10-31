@@ -22,7 +22,7 @@
 			 	'text'=>$x + 1
 			 ]);
 		}
-		$products = product::listAll();
+		
 		$page = new PageAdmin();
 		$page->setTpl("products", [
 			"products"=>$pagination['data'],
